@@ -24,6 +24,7 @@ export default function AddTaskScreen({ navigation, tasks, setTasks }) {
     };
 
     setTasks([...tasks, newTask]);
+    Alert.alert("Sucesso", "Tarefa adicionada com sucesso!");
     navigation.goBack();
   };
 
