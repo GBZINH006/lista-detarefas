@@ -33,3 +33,28 @@ export default function App() {
         </NavigationContainer>
     );
 }
+    const [tasks, setTasks] = useState([]);
+
+    return (
+        <NavigationContainer>
+            <Stack.Navigator
+                screenOptions={{
+                    headerStyle: { backgroundColor: "#3498db" },
+                    headerTintColor: "#fff",
+                }}
+            >
+                <Stack.Screen name="Home">
+                    {(props) => (
+                        <HomeScreen {...props} tasks={tasks} setTasks={setTasks} />
+                    )}
+                </Stack.Screen>
+                <Stack.Screen name="AddTask">
+                    {(props) => (
+                        <AddTaskScreen {...props} tasks={tasks} setTasks={setTasks} />
+                    )}
+                </Stack.Screen>
+                <Stack.Screen name="TaskDetails" component={TaskDetailsScreen} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
