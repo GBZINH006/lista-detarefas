@@ -1,32 +1,33 @@
-import React, { useState } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "./screens/HomeScreen";
-import AddTaskScreen from "./screens/AddTaskScreen";
-import TaskDetailsScreen from "./screens/TaskDetailsScreen";
+// App.js
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './screens/HomeScreen';
+import AddTaskScreen from './screens/AddTaskScreen';
+import TaskDetailsScreen from './screens/TaskDetailsScreen';
+import { loadTasks, saveTasks } from './utils/storage';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
     const [tasks, setTasks] = useState([]);
 
+    useEffect(() => {
+        loadTasks().then(setTasks);
+    }, []);
+
+    useEffect(() => {
+        saveTasks(tasks);
+    }, [tasks]);
+
     return (
         <NavigationContainer>
-            <Stack.Navigator
-                screenOptions={{
-                    headerStyle: { backgroundColor: "#3498db" },
-                    headerTintColor: "#fff",
-                }}
-            >
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="Home">
-                    {(props) => (
-                        <HomeScreen {...props} tasks={tasks} setTasks={setTasks} />
-                    )}
+                    {(props) => <HomeScreen {...props} tasks={tasks} setTasks={setTasks} />}
                 </Stack.Screen>
                 <Stack.Screen name="AddTask">
-                    {(props) => (
-                        <AddTaskScreen {...props} tasks={tasks} setTasks={setTasks} />
-                    )}
+                    {(props) => <AddTaskScreen {...props} setTasks={setTasks} />}
                 </Stack.Screen>
                 <Stack.Screen name="TaskDetails" component={TaskDetailsScreen} />
             </Stack.Navigator>

@@ -1,69 +1,39 @@
-import React, { useState } from "react";
-import {
-  View,
-  TextInput,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, Keyboard } from 'react-native';
 
-export default function AddTaskScreen({ navigation, tasks, setTasks }) {
-  const [title, setTitle] = useState("");
+export default function AddTaskScreen({ navigation, setTasks }) {
+    const [title, setTitle] = useState('');
 
-  const handleAddTask = () => {
-    if (!title.trim()) {
-      Alert.alert("Erro", "Digite o título da tarefa.");
-      return;
-    }
-
-    const newTask = {
-      id: Date.now().toString(),
-      title,
-      completed: false,
+    const handleAdd = () => {
+        if (title.trim()) {
+            setTasks(prev => [...prev, { title, completed: false }]);
+            setTitle('');
+            Keyboard.dismiss();
+            navigation.goBack();
+        }
     };
 
-    setTasks([...tasks, newTask]);
-    navigation.goBack();
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Título da Tarefa</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Estudar React Native"
-        value={title}
-        onChangeText={setTitle}
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleAddTask}>
-        <Text style={styles.buttonText}>Salvar</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <TextInput
+                placeholder="Digite o título da tarefa"
+                style={styles.input}
+                value={title}
+                onChangeText={setTitle}
+            />
+            <Button title="Salvar Tarefa" onPress={handleAdd} color="#3498db" />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: "center" },
-  label: {
-    fontSize: 18,
-    marginBottom: 8,
-    fontWeight: "600",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#fff",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: "#27ae60",
-    padding: 14,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
+    container: { flex: 1, justifyContent: 'center', padding: 20 },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 20,
+        backgroundColor: '#fff',
+    },
 });

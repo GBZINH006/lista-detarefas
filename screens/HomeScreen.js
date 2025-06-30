@@ -1,115 +1,125 @@
-import React from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, FlatList, StyleSheet, Text, Switch, Keyboard, ToastAndroid, Appearance } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function HomeScreen({ navigation, tasks, setTasks }) {
-  const toggleTaskStatus = (id) => {
-    const updatedTasks = tasks.map((task) =>
-      task.id === id ? { ...task, completed: !task.completed } : task
+import TaskItem from '../components/TaskItem';
+import AddTaskButton from '../components/AddTaskButton';
+import FilterTabs from '../components/FilterTabs';
+
+import { lightTheme, darkTheme } from '../theme';
+
+export default function HomeScreen() {
+    const colorScheme = Appearance.getColorScheme();
+    const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
+
+    const [tasks, setTasks] = useState([]);
+    const [filter, setFilter] = useState('Todas');
+    const [newTask, setNewTask] = useState('');
+    const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');
+
+    // Load tasks from storage
+    useEffect(() => {
+        (async () => {
+            const savedTasks = await AsyncStorage.getItem('@tasks');
+            if (savedTasks) setTasks(JSON.parse(savedTasks));
+        })();
+    }, []);
+
+    // Save tasks on change
+    useEffect(() => {
+        AsyncStorage.setItem('@tasks', JSON.stringify(tasks));
+    }, [tasks]);
+
+    // Toggle dark mode
+    const toggleTheme = () => {
+        setIsDarkMode(!isDarkMode);
+        setTheme(!isDarkMode ? darkTheme : lightTheme);
+    };
+
+    // Add new task
+    const addTask = () => {
+        if (!newTask.trim()) return;
+        setTasks(prev => [...prev, { id: Date.now().toString(), text: newTask.trim(), done: false }]);
+        setNewTask('');
+        Keyboard.dismiss();
+        ToastAndroid.show('Tarefa adicionada!', ToastAndroid.SHORT);
+    };
+
+    // Toggle task done
+    const toggleDone = (id) => {
+        setTasks(prev => prev.map(task => (task.id === id ? { ...task, done: !task.done } : task)));
+        ToastAndroid.show('Tarefa atualizada!', ToastAndroid.SHORT);
+    };
+
+    // Filter tasks
+    const filteredTasks = tasks.filter(task => {
+        if (filter === 'Pendentes') return !task.done;
+        if (filter === 'Concluídas') return task.done;
+        return true;
+    });
+
+    return (
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <View style={styles.header}>
+                <Text style={[styles.title, { color: theme.text }]}>easyTarefa</Text>
+                <View style={styles.switchRow}>
+                    <Text style={{ color: theme.text }}>Dark Mode</Text>
+                    <Switch value={isDarkMode} onValueChange={toggleTheme} />
+                </View>
+            </View>
+
+            <TextInput
+                placeholder="Digite uma nova tarefa"
+                placeholderTextColor={theme.text + '99'}
+                style={[styles.input, { color: theme.text, borderColor: theme.primary }]}
+                value={newTask}
+                onChangeText={setNewTask}
+                onSubmitEditing={addTask}
+                returnKeyType="done"
+            />
+
+            <AddTaskButton onPress={addTask} theme={theme} />
+
+            <FilterTabs filter={filter} setFilter={setFilter} theme={theme} />
+
+            <FlatList
+                data={filteredTasks}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => <TaskItem task={item} onToggle={toggleDone} theme={theme} />}
+                contentContainerStyle={{ paddingBottom: 50 }}
+                showsVerticalScrollIndicator={false}
+            />
+        </View>
     );
-    setTasks(updatedTasks);
-  };
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={[styles.taskCard, item.completed && styles.taskCompleted]}
-      onPress={() => navigation.navigate("TaskDetails", { task: item })}
-    >
-      <Text
-        style={[styles.taskTitle, item.completed && styles.textStrikethrough]}
-      >
-        {item.title}
-      </Text>
-
-      <TouchableOpacity
-        style={styles.completeButton}
-        onPress={() => toggleTaskStatus(item.id)}
-      >
-        <Text style={styles.buttonText}>
-          {item.completed ? "⛔ Desmarcar" : "✅ Concluir"}
-        </Text>
-      </TouchableOpacity>
-    </TouchableOpacity>
-  );
-
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhuma tarefa adicionada.</Text>
-        }
-      />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate("AddTask")}
-      >
-        <Text style={styles.addButtonText}>+ Nova Tarefa</Text>
-      </TouchableOpacity>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  taskCard: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginVertical: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  taskCompleted: {
-    backgroundColor: "#d1f7c4",
-  },
-  taskTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 10,
-    color: "#333",
-  },
-  textStrikethrough: {
-    textDecorationLine: "line-through",
-    color: "#888",
-  },
-  completeButton: {
-    backgroundColor: "#2ecc71",
-    padding: 10,
-    borderRadius: 8,
-    alignSelf: "flex-start",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  addButton: {
-    backgroundColor: "#2980b9",
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 20,
-    alignItems: "center",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  emptyText: {
-    textAlign: "center",
-    marginTop: 40,
-    color: "#777",
-  },
+    container: {
+        flex: 1,
+        paddingTop: 50,
+        paddingHorizontal: 20,
+    },
+    header: {
+        marginBottom: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    switchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: '900',
+    },
+    input: {
+        fontSize: 18,
+        borderWidth: 2,
+        borderRadius: 10,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        marginBottom: 15,
+    },
 });
