@@ -9,6 +9,19 @@ import { loadTasks, saveTasks } from './utils/storage';
 
 const Stack = createNativeStackNavigator();
 
+function Document() {
+    const { theme } = useContext(ThemeContext);
+
+    return (
+        <View style={[styles.documentContainer, { backgroundColor: theme.card }]}>
+            <Text style={[styles.documentText, { color: theme.text }]}>
+                Esse é o easyTarefa, um app pra organizar suas tarefas com tema claro e escuro.
+                Você pode adicionar tarefas, marcar como feitas, definir horários e receber notificações.
+            </Text>
+        </View>
+    );
+}
+
 export default function App() {
     const [tasks, setTasks] = useState([]);
 
@@ -34,3 +47,5 @@ export default function App() {
         </NavigationContainer>
     );
 }
+
+

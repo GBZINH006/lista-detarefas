@@ -1,66 +1,79 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { MotiView } from 'moti';
 
-export default function TaskCard({ task, onPressDetails, onComplete }) {
+export default function TaskCard({ task, onToggle, onDelete, onPressDetails, theme }) {
     return (
-        <TouchableOpacity
-            style={[styles.card, task.completed && styles.completedCard]}
-            onPress={onPressDetails}
+        <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 300 }}
+            style={[styles.card, { backgroundColor: theme.card, shadowColor: theme.shadow }]}
         >
-            <Text
-                style={[styles.title, task.completed && styles.textStrikethrough]}
-            >
-                {task.title}
-            </Text>
-
-            <TouchableOpacity
-                style={styles.completeButton}
-                onPress={onComplete}
-            >
-                <Text style={styles.buttonText}>
-                    {task.completed ? "⛔ Desmarcar" : "✅ Concluir"}
+            <TouchableOpacity onPress={onToggle} style={{ flex: 1 }}>
+                <Text
+                    style={[
+                        styles.text,
+                        { color: task.done ? '#999' : theme.text, textDecorationLine: task.done ? 'line-through' : 'none' },
+                    ]}
+                >
+                    {task.text}
                 </Text>
+                {/* Exibindo horários */}
+                {(task.startTime || task.endTime) && (
+                    <Text style={[styles.timeText, { color: theme.primary }]}>
+                        {task.startTime ? `Início: ${task.startTime} ` : ''}
+                        {task.endTime ? `- Fim: ${task.endTime}` : ''}
+                    </Text>
+                )}
             </TouchableOpacity>
-        </TouchableOpacity>
+
+            <View style={styles.actions}>
+                <TouchableOpacity onPress={onPressDetails}>
+                    <Text style={[styles.detail, { color: theme.primary }]}>Ver</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={onDelete}>
+                    <Text style={styles.delete}>X</Text>
+                </TouchableOpacity>
+            </View>
+        </MotiView>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        padding: 18,
-        borderRadius: 14,
-        marginVertical: 10,
-        borderLeftWidth: 5,
-        borderLeftColor: '#3498db',
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 4,
-        elevation: 3,
+        padding: 15,
+        borderRadius: 12,
+        marginBottom: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 2,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
     },
-
-    completedCard: {
-        backgroundColor: "#d1f7c4",
+    text: {
+        fontSize: 16,
     },
-    title: {
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 10,
-        color: "#333",
+    timeText: {
+        fontSize: 12,
+        fontWeight: '600',
+        marginTop: 4,
     },
-    textStrikethrough: {
-        textDecorationLine: "line-through",
-        color: "#888",
+    actions: {
+        flexDirection: 'row',
+        gap: 12,
+        alignItems: 'center',
+        marginLeft: 10,
     },
-    completeButton: {
-        backgroundColor: "#2ecc71",
-        padding: 10,
-        borderRadius: 8,
-        alignSelf: "flex-start",
+    delete: {
+        color: '#e11d48',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
+    detail: {
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });
