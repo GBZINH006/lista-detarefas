@@ -8,10 +8,10 @@ export default function AddTaskButton({ onPress, theme }) {
             from={{ scale: 1 }}
             animate={{ scale: 1.1 }}
             transition={{ type: 'timing', duration: 800, loop: true, repeatReverse: true }}
-            style={[styles.container, { backgroundColor: theme.primary }]}
+            style={[styles.container, { backgroundColor: theme.primary, shadowColor: theme.shadow }]}
         >
             <TouchableOpacity onPress={onPress} style={styles.touch}>
-                <Text style={styles.text}>+ Nova Tarefa</Text>
+                <Text style={styles.text}>+</Text>
             </TouchableOpacity>
         </MotiView>
     );
@@ -19,19 +19,28 @@ export default function AddTaskButton({ onPress, theme }) {
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 20,
+        position: 'absolute',
+        bottom: 30,
+        right: 30,
+        width: 60,
+        height: 60,
         borderRadius: 30,
-        paddingVertical: 12,
-        paddingHorizontal: 25,
-        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
     },
     touch: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     text: {
         color: '#fff',
-        fontWeight: '700',
-        fontSize: 18,
-        textAlign: 'center',
+        fontSize: 36,
+        fontWeight: 'bold',
+        lineHeight: 36,
     },
 });

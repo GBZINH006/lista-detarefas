@@ -5,18 +5,40 @@ import { MotiView } from 'moti';
 export default function TaskItem({ task, onToggle, theme }) {
     return (
         <MotiView
-            from={{ opacity: 1, translateX: 0 }}
-            animate={{ opacity: task.done ? 0.5 : 1, translateX: 0 }}
-            exit={{ opacity: 0, translateX: -100 }}
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'timing', duration: 300 }}
             style={[styles.container, { backgroundColor: theme.card, shadowColor: theme.shadow }]}
         >
-            <TouchableOpacity onPress={() => onToggle(task.id)} style={styles.touch}>
-                <Text style={[styles.text, { color: task.done ? '#999' : theme.text, textDecorationLine: task.done ? 'line-through' : 'none' }]}>
+            <TouchableOpacity onPress={() => onToggle(task.id)} style={{ flex: 1 }}>
+                <Text
+                    style={[
+                        styles.text,
+                        { color: task.done ? '#999' : theme.text, textDecorationLine: task.done ? 'line-through' : 'none' },
+                    ]}
+                >
                     {task.text}
                 </Text>
+
+                {(task.startTime || task.endTime) && (
+                    <View style={styles.timeContainer}>
+                        <Text style={[styles.timeText, { color: theme.primary }]}>
+                            {task.startTime ? `Início: ${formatTime(task.startTime)}` : 'Início: --:--'}
+                        </Text>
+                        <Text style={[styles.timeText, { color: theme.primary, marginLeft: 15 }]}>
+                            {task.endTime ? `Fim: ${formatTime(task.endTime)}` : 'Fim: --:--'}
+                        </Text>
+                    </View>
+                )}
             </TouchableOpacity>
         </MotiView>
     );
+}
+
+function formatTime(isoString) {
+    if (!isoString) return '--:--';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 const styles = StyleSheet.create({
@@ -29,10 +51,15 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 3,
     },
-    touch: {
-        flex: 1,
-    },
     text: {
         fontSize: 16,
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        marginTop: 6,
+    },
+    timeText: {
+        fontSize: 12,
+        fontWeight: '600',
     },
 });
